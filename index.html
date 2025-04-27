@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>خدمة القديس تيموثاؤس - كنيسة الشهيدة دميانة</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Amiri', serif;
+      margin: 0;
+      padding: 0;
+      background-color: #F5DEB3;
+      direction: rtl;
+      text-align: right;
+    }
+    header {
+      background-color: #2E5A6D;
+      color: #FFFFFF;
+      padding: 20px;
+      text-align: center;
+    }
+    header img {
+      width: 120px;
+    }
+    nav {
+      background-color: #8B4513;
+      padding: 10px;
+    }
+    nav a {
+      color: #FFFFFF;
+      margin: 0 15px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    nav a:hover {
+      color: #F5DEB3;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 20px auto;
+      padding: 20px;
+      background-color: #FFFFFF;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      font-size: 2.2em;
+      margin: 10px 0;
+    }
+    h2 {
+      color: #8B4513;
+      font-size: 1.8em;
+    }
+    p {
+      font-size: 1.2em;
+      line-height: 1.6;
+    }
+    .upload-section, .results-section {
+      margin: 20px 0;
+    }
+    input[type="file"], input[type="text"] {
+      margin: 10px 0;
+      font-size: 1.1em;
+      padding: 5px;
+    }
+    button {
+      background-color: #2E5A6D;
+      color: #FFFFFF;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-family: 'Amiri', serif;
+      font-size: 1.1em;
+      margin: 5px;
+    }
+    button:hover {
+      background-color: #8B4513;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+    table, th, td {
+      border: 1px solid #2E5A6D;
+    }
+    th, td {
+      padding: 10px;
+      text-align: center;
+      font-size: 1.1em;
+    }
+    th {
+      background-color: #2E5A6D;
+      color: #FFFFFF;
+    }
+    footer {
+      background-color: #2E5A6D;
+      color: #FFFFFF;
+      text-align: center;
+      padding: 10px;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      font-size: 1em;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="/STS.png" alt="شعار خدمة القديس تيموثاؤس">
+    <h1>خدمة القديس تيموثاؤس لإعداد الخدام</h1>
+    <p>كنيسة الشهيدة دميانة - الكشح</p>
+  </header>
+  <nav>
+    <a href="#home">الرئيسية</a>
+    <a href="#about">عن الخدمة</a>
+    <a href="#results">النتائج</a>
+    <a href="#admin">إدارة الدرجات</a>
+  </nav>
+  <div class="container">
+    <section id="home">
+      <h2>مرحبًا بخدمة القديس تيموثاؤس</h2>
+      <p>نحن خدمة مكرسة لإعداد الخدام في كنيسة الشهيدة دميانة بالكشح. نهدف إلى تنمية المهارات الروحية والعملية للخدام من خلال دورات تدريبية واختبارات تقييمية.</p>
+    </section>
+    <section id="about">
+      <h2>عن الخدمة</h2>
+      <p>خدمة القديس تيموثاؤس تُقام تحت رعاية كنيسة الشهيدة دميانة بالكشح، وتركز على تدريب الخدام لخدمة الكنيسة بكفاءة وروحانية عالية. تشمل أنشطتنا دروسًا في اللاهوت، الخدمة العملية، والإرشاد الروحي.</p>
+    </section>
+    <section id="admin">
+      <h2>إدارة الدرجات</h2>
+      <div class="upload-section">
+        <button onclick="downloadTemplate()">تحميل قالب Excel</button>
+        <input type="file" id="excelFile" accept=".xlsx, .xls">
+        <button onclick="loadExcel()">رفع الملف</button>
+      </div>
+    </section>
+    <section id="results">
+      <h2>النتائج</h2>
+      <div>
+        <input type="text" id="studentCode" placeholder="أدخل كودك">
+        <button onclick="showResults()">عرض النتيجة</button>
+      </div>
+      <div class="results-section" id="resultsTable"></div>
+      <button onclick="downloadAsImage()" style="display: none;" id="downloadBtn">تحميل النتيجة كصورة</button>
+    </section>
+  </div>
+  
+  <script>
+    let resultsData = [];
+
+    // دالة لتحميل قالب Excel
+    function downloadTemplate() {
+      const templateData = [
+        { الكود: "", الاسم: "", "مادة 1": "", "مادة 2": "", "مادة 3": "", "مادة 4": "", "مادة 5": "", المجموع: "" }
+      ];
+      const ws = XLSX.utils.json_to_sheet(templateData);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "قالب");
+      XLSX.writeFile(wb, "قالب_خدمة_تيموثاؤس.xlsx");
+    }
+
+    function loadExcel() {
+      const fileInput = document.getElementById('excelFile');
+      const file = fileInput.files[0];
+      if (!file) {
+        alert('يرجى اختيار ملف Excel');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const sheetName = workbook.SheetNames[0];
+        const sheet = workbook.Sheets[sheetName];
+        resultsData = XLSX.utils.sheet_to_json(sheet);
+        alert('تم رفع الملف بنجاح! يمكنك الآن البحث باستخدام الكود.');
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    function showResults() {
+      const codeInput = document.getElementById('studentCode').value.trim();
+      const resultsDiv = document.getElementById('resultsTable');
+      const downloadBtn = document.getElementById('downloadBtn');
+
+      if (!codeInput) {
+        alert('يرجى إدخال الكود');
+        return;
+      }
+
+      if (resultsData.length === 0) {
+        alert('يرجى رفع ملف الدرجات أولاً');
+        return;
+      }
+
+      const student = resultsData.find(row => row['الكود'] == codeInput);
+      if (!student) {
+        resultsDiv.innerHTML = '<p>الكود غير موجود</p>';
+        downloadBtn.style.display = 'none';
+        return;
+      }
+
+      let table = '<table>';
+      table += `<tr><th colspan="2">نتيجة ${student['الاسم']}</th></tr>`;
+      table += `<tr><td>الكود</td><td>${student['الكود']}</td></tr>`;
+
+      // استرجاع جميع المواد ديناميكيًا
+      const subjects = Object.keys(student).filter(key => key.startsWith('مادة'));
+      subjects.forEach(subject => {
+        table += `<tr><td>${subject}</td><td>${student[subject] || 'غير متوفر'}</td></tr>`;
+      });
+
+      table += `<tr><td>المجموع</td><td>${student['المجموع'] || 'غير متوفر'}</td></tr>`;
+      table += '</table>';
+
+      resultsDiv.innerHTML = table;
+      downloadBtn.style.display = 'block';
+    }
+
+    function downloadAsImage() {
+      const resultsDiv = document.getElementById('resultsTable');
+      html2canvas(resultsDiv).then(canvas => {
+        const link = document.createElement('a');
+        link.download = 'نتيجة_خدمة_تيموثاؤس.png';
+        link.href = canvas.toDataURL();
+        link.click();
+      });
+    }
+  </script>
+</body>
+</html>
