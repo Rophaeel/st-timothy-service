@@ -28,6 +28,9 @@
     nav {
       background-color: #8B4513;
       padding: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
     nav a {
       color: #FFFFFF;
@@ -37,6 +40,9 @@
     }
     nav a:hover {
       color: #F5DEB3;
+    }
+    .login-section {
+      margin-left: auto;
     }
     .container {
       max-width: 1200px;
@@ -61,7 +67,7 @@
     .upload-section, .results-section {
       margin: 20px 0;
     }
-    input[type="file"], input[type="text"] {
+    input[type="file"], input[type="text"], input[type="password"] {
       margin: 10px 0;
       font-size: 1.1em;
       padding: 5px;
@@ -97,41 +103,51 @@
       background-color: #2E5A6D;
       color: #FFFFFF;
     }
-    footer {
-      background-color: #2E5A6D;
-      color: #FFFFFF;
+    .hidden {
+      display: none;
+    }
+    .result-container {
       text-align: center;
-      padding: 10px;
-      position: fixed;
-      bottom: 0;
-      width: 100%;
-      font-size: 1em;
+    }
+    .result-header img {
+      width: 100px;
+      margin-bottom: 10px;
+    }
+    .result-header p {
+      font-size: 1.2em;
+      font-weight: bold;
+      margin: 0 0 20px 0;
     }
   </style>
 </head>
 <body>
   <header>
-    <img src="/STS.png" alt="شعار خدمة القديس تيموثاؤس">
+    <img src="STS.png" alt="شعار خدمة القديس تيموثاؤس">
     <h1>خدمة القديس تيموثاؤس لإعداد الخدام</h1>
     <p>كنيسة الشهيدة دميانة - الكشح</p>
   </header>
   <nav>
-    <a href="#home">الرئيسية</a>
     <a href="#about">عن الخدمة</a>
-    <a href="#results">النتائج</a>
-    <a href="#admin">إدارة الدرجات</a>
+    <a href="#results">النتيجة</a>
+    <a href="#admin" id="adminLink" class="hidden">إضافة الدرجات</a>
+    <div class="login-section">
+      <button onclick="showLogin()" id="loginBtn">تسجيل الدخول</button>
+      <button onclick="logout()" id="logoutBtn" class="hidden">تسجيل الخروج</button>
+    </div>
   </nav>
   <div class="container">
-    <section id="home">
-      <h2>مرحبًا بخدمة القديس تيموثاؤس</h2>
-      <p>نحن خدمة مكرسة لإعداد الخدام في كنيسة الشهيدة دميانة بالكشح. نهدف إلى تنمية المهارات الروحية والعملية للخدام من خلال دورات تدريبية واختبارات تقييمية.</p>
-    </section>
+    <div id="loginForm" class="hidden">
+      <h2>تسجيل الدخول</h2>
+      <input type="text" id="username" placeholder="اسم المستخدم">
+      <input type="password" id="password" placeholder="كلمة المرور">
+      <button onclick="login()">دخول</button>
+    </div>
     <section id="about">
       <h2>عن الخدمة</h2>
       <p>خدمة القديس تيموثاؤس تُقام تحت رعاية كنيسة الشهيدة دميانة بالكشح، وتركز على تدريب الخدام لخدمة الكنيسة بكفاءة وروحانية عالية. تشمل أنشطتنا دروسًا في اللاهوت، الخدمة العملية، والإرشاد الروحي.</p>
     </section>
-    <section id="admin">
-      <h2>إدارة الدرجات</h2>
+    <section id="admin" class="hidden">
+      <h2>إضافة الدرجات</h2>
       <div class="upload-section">
         <button onclick="downloadTemplate()">تحميل قالب Excel</button>
         <input type="file" id="excelFile" accept=".xlsx, .xls">
@@ -148,9 +164,44 @@
       <button onclick="downloadAsImage()" style="display: none;" id="downloadBtn">تحميل النتيجة كصورة</button>
     </section>
   </div>
-  
   <script>
     let resultsData = [];
+    const ADMIN_USERNAME = "admin"; // يمكنك تغيير اسم المستخدم
+    const ADMIN_PASSWORD = "admin123"; // يمكنك تغيير كلمة المرور
+    let isLoggedIn = false;
+
+    // إظهار نموذج تسجيل الدخول
+    function showLogin() {
+      document.getElementById('loginForm').classList.remove('hidden');
+    }
+
+    // تسجيل الدخول
+    function login() {
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+
+      if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+        isLoggedIn = true;
+        document.getElementById('loginForm').classList.add('hidden');
+        document.getElementById('adminLink').classList.remove('hidden');
+        document.getElementById('admin').classList.remove('hidden');
+        document.getElementById('loginBtn').classList.add('hidden');
+        document.getElementById('logoutBtn').classList.remove('hidden');
+        alert('تم تسجيل الدخول بنجاح!');
+      } else {
+        alert('اسم المستخدم أو كلمة المرور غير صحيحة');
+      }
+    }
+
+    // تسجيل الخروج
+    function logout() {
+      isLoggedIn = false;
+      document.getElementById('adminLink').classList.add('hidden');
+      document.getElementById('admin').classList.add('hidden');
+      document.getElementById('loginBtn').classList.remove('hidden');
+      document.getElementById('logoutBtn').classList.add('hidden');
+      alert('تم تسجيل الخروج بنجاح!');
+    }
 
     // دالة لتحميل قالب Excel
     function downloadTemplate() {
@@ -205,7 +256,12 @@
         return;
       }
 
-      let table = '<table>';
+      let table = '<div class="result-container">';
+      table += '<div class="result-header">';
+      table += '<img src="STS.png" alt="شعار خدمة القديس تيموثاؤس">';
+      table += '<p>خدمة القديس تيموثاؤس لإعداد الخدام بكنيسة الشهيدة دميانة بالكشح</p>';
+      table += '</div>';
+      table += '<table>';
       table += `<tr><th colspan="2">نتيجة ${student['الاسم']}</th></tr>`;
       table += `<tr><td>الكود</td><td>${student['الكود']}</td></tr>`;
 
@@ -217,6 +273,7 @@
 
       table += `<tr><td>المجموع</td><td>${student['المجموع'] || 'غير متوفر'}</td></tr>`;
       table += '</table>';
+      table += '</div>';
 
       resultsDiv.innerHTML = table;
       downloadBtn.style.display = 'block';
